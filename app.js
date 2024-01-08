@@ -40,7 +40,13 @@ app.use(function(err, req, res, next) {
 
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/testdb', {useNewUrlParser: true, useUnifiedTopology: true});
+
+const mongoDB = "mongodb://localhost:27017/testdb";
+mongoose.connect(mongoDB);
+mongoose.Promise = Promise;
 const db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "MongoDB connection error"));
+
 
 module.exports = app;
