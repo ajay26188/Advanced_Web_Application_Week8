@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const {body, validationResult} = require('express-validator');
 const User = require('../models/User');
+const Todo = require('../models/Todo');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
@@ -35,19 +37,36 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.post('/api/user/register',async (req, res) => {
-  const { username, password } = req.body;
+//Task 1 & Task 4
 
-  User.findOne({ username })
-    .then(existingUser => {
-      if (existingUser) {
-        return res.status(403).json({ email: 'Email already in use.'})
-      }
+router.post('/api/user/register',
+  [
+    body('username').isEmail(),
+    body('password')
+      .isLength({min: 8})
+      .matches(/[a-z]/)
+      .matches(/[A-Z]/)
+      .matches(/\d/)
+      .matches(/[~`!@#$%^&*()-_+={}[\]|\;:"<>,./?]/)
+  ],  
+  async (req, res) => {
+    const { username, password } = req.body;
 
-      const newUser = new User({username, password});
-      return newUser.save();
-    })
-    .then(() => res.status(201).json('ok'))
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({errors: errors.array()});
+    }
+
+    User.findOne({ username })
+      .then(existingUser => {
+        if (existingUser) {
+          return res.status(403).json({ email: 'Email already in use.'})
+        }
+
+        const newUser = new User({username, password});
+        return newUser.save();
+      })
+      .then(() => res.status(201).json('ok'))
 
 })
 
@@ -85,7 +104,7 @@ router.get('/api/private',passport.authenticate('jwt', {session: false}),(req,re
   res.json({email: req.user.username});
 });
 
-
+//Task 5
 
 
 
