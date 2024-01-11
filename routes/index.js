@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+require('dotenv').config();
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
@@ -10,7 +11,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 router.use(passport.initialize());
 
 const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken();
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.SECRET
 };
 
@@ -83,5 +84,9 @@ router.post('/api/user/login', async (req, res) => {
 router.get('/api/private',passport.authenticate('jwt', {session: false}),(req,res) => {
   res.json({email: req.user.username});
 });
+
+
+
+
 
 module.exports = router;
